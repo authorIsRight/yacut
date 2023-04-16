@@ -3,10 +3,10 @@ import re
 from flask import jsonify, request
 
 from . import app, db
-from . models import URLMap
 from .error_handlers import InvalidAPIUsage
+from .models import URLMap
+from .utils import get_unique_short_id, is_unique_short_id
 
-from .utils import is_unique_short_id, get_unique_short_id
 
 @app.route('/api/id/', methods=['POST'])
 def create_short_link():
@@ -18,18 +18,21 @@ def create_short_link():
         raise InvalidAPIUsage('\"url\" является обязательным полем!')
     if 'custom_id' in data:
         custom_id = data.get('custom_id')
-        if not re.match(r'^[a-zA-Z\d]{1,16}$', custom_id):
+        if custom_id == '' or custom_id is None:
+            data['custom_id'] = get_unique_short_id()
+        elif not re.match(r'^[a-zA-Z\d]{1,16}$', custom_id):
             raise InvalidAPIUsage('Указано недопустимое имя для короткой ссылки')
         if not is_unique_short_id(custom_id):
             raise InvalidAPIUsage(f'Имя "{custom_id}" уже занято.')
-    else:    
+
+    else:
         data['custom_id'] = get_unique_short_id()
     todb_url = URLMap()
     todb_url.from_dict(data)
     db.session.add(todb_url)
     db.session.commit()
 
-    return jsonify({'todb_url': todb_url.to_dict()}), 201
+    return jsonify(todb_url.to_dict()), 201
 
 
 @app.route('/api/id/<short_id>/', methods=['GET'])

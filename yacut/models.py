@@ -1,9 +1,11 @@
 from datetime import datetime
+
 from flask import url_for
 
 from yacut import db
 
 FIELD_RELATIONS = {'original': 'url', 'short': 'custom_id'}
+
 
 class URLMap(db.Model):
     id = db.Column(db.Integer, primary_key=True)
