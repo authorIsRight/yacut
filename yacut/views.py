@@ -15,7 +15,7 @@ def index_view():
     if not custom_id:
         custom_id = get_unique_short_id()
     elif not is_unique_short_id(custom_id):
-        flash(f'Ссылка {custom_id} уже занята!', 'not_unique_error')
+        flash(f'Имя {custom_id} уже занято!', 'not_unique_error')
         return render_template('index.html', form=form)
     new_url = URLMap(
         original=form.original_link.data,
