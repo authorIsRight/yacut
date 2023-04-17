@@ -1,4 +1,5 @@
 import re
+from http import HTTPStatus
 
 from flask import jsonify, request
 
@@ -18,7 +19,7 @@ def create_short_link():
         raise InvalidAPIUsage('\"url\" является обязательным полем!')
     if 'custom_id' in data:
         custom_id = data.get('custom_id')
-        if custom_id == '' or custom_id is None:
+        if not custom_id:
             data['custom_id'] = get_unique_short_id()
         elif not re.match(r'^[a-zA-Z\d]{1,16}$', custom_id):
             raise InvalidAPIUsage('Указано недопустимое имя для короткой ссылки')
@@ -32,13 +33,13 @@ def create_short_link():
     db.session.add(todb_url)
     db.session.commit()
 
-    return jsonify(todb_url.to_dict()), 201
+    return jsonify(todb_url.to_dict()), HTTPStatus.CREATED
 
 
 @app.route('/api/id/<short_id>/', methods=['GET'])
 def get_original_url(short_id):
     db_object = URLMap.query.filter(URLMap.short == short_id).first()
     if not db_object:
-        raise InvalidAPIUsage('Указанный id не найден', 404)
+        raise InvalidAPIUsage('Указанный id не найден', HTTPStatus.NOT_FOUND)
     original_url = db_object.original
-    return jsonify({'url': original_url}), 200
+    return jsonify({'url': original_url}), HTTPStatus.OK

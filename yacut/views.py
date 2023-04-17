@@ -1,6 +1,7 @@
 from flask import flash, redirect, render_template
 
 from yacut import app, db
+
 from .forms import URLMapForm
 from .models import URLMap
 from .utils import get_unique_short_id, is_unique_short_id

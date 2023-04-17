@@ -4,8 +4,6 @@ from flask import url_for
 
 from yacut import db
 
-FIELD_RELATIONS = {'original': 'url', 'short': 'custom_id'}
-
 
 class URLMap(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -21,6 +19,7 @@ class URLMap(db.Model):
         )
 
     def from_dict(self, data):
-        for field_1, field_2 in FIELD_RELATIONS.items():
-            if field_2 in data:
-                setattr(self, field_1, data[field_2])
+        if 'url' in data:
+            self.original = data['url']
+        if 'custom_id' in data:
+            self.short = data['custom_id']
